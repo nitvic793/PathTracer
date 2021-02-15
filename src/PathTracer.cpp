@@ -6,6 +6,7 @@
 #include <Color.h>
 #include <HittableWorld.h>
 #include <Sphere.h>
+#include <Camera.h>
 
 using namespace nv;
 using namespace nv::math;
@@ -46,6 +47,7 @@ void RenderImage()
 	constexpr float aspectRatio = 16.f / 9.f;
 	constexpr int imageWidth = 400;
 	constexpr int imageHeight = (int)(imageWidth / aspectRatio);
+	constexpr int samplesPerPixel = 100;
 
 	// Define World
 	HittableWorld world;
@@ -53,14 +55,7 @@ void RenderImage()
 	world.Add(std::make_shared<Sphere>(Vec3(0, -100.5, -1), 100.f));
 
 	// Camera
-	float viewportHeight = 2.f;
-	float viewportWidth = aspectRatio * viewportHeight;
-	float focalLength = 1.f;
-
-	Vec3 origin = Vec3(0.f, 0.f, 0.f);
-	Vec3 horizontal = Vec3(viewportWidth, 0, 0);
-	Vec3 vertical = Vec3(0, viewportHeight, 0);
-	Vec3 lowerLeftCorner = origin - horizontal / 2 - vertical / 2 - Vec3(0, 0, focalLength);
+	Camera camera;
 
 	// Render
 
@@ -71,13 +66,18 @@ void RenderImage()
 		std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
 		for (int i = 0; i < imageWidth; ++i)
 		{
-			auto u = float(i) / (imageWidth - 1u);
-			auto v = float(j) / (imageHeight - 1u);
+			Color pixelColor(0, 0, 0);
+			for (int s = 0; s < samplesPerPixel; ++s)
+			{
+				auto u = (float(i) + Random()) / (imageWidth - 1u);
+				auto v = (float(j) + Random()) / (imageHeight - 1u);
 
-			Ray ray(origin, lowerLeftCorner + u * horizontal + v * vertical - origin);
+				Ray ray = camera.GetRay(u, v);
 
-			Color pixelColor = RayColor(ray, world);
-			WriteColor(std::cout, pixelColor);
+				pixelColor = pixelColor + RayColor(ray, world);
+			}
+
+			WriteColor(std::cout, pixelColor, samplesPerPixel);
 		}
 	}
 

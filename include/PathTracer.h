@@ -3,6 +3,7 @@
 #include <cmath>
 #include <limits>
 #include <memory>
+#include <random>
 
 namespace nv
 {
@@ -19,8 +20,31 @@ namespace nv
 
 	// Utility Functions
 
-	inline constexpr float DegreesToRadians(float degrees) {
+	inline constexpr float DegreesToRadians(float degrees) 
+	{
 		return degrees * PI / 180.f;
+	}
+
+	inline float Random()
+	{
+		static std::uniform_real_distribution<float> distribution(0.0, 1.0);
+		static std::mt19937 generator;
+		return distribution(generator);
+	}
+
+	inline float Random(float min, float max)
+	{
+		return min + (max - min) * Random();
+	}
+
+	inline float Clamp(float x, float min, float max)
+	{
+		//float result = std::max(x, min);
+		//result = std::min(max, x);
+		//return result;
+		if (x < min) return min;
+		if (x > max) return max;
+		return x;
 	}
 
 }
