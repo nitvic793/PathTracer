@@ -2,9 +2,10 @@
 //
 
 #include <iostream>
-#include <Math/Vec3.h>
-#include <Math/Ray.h>
+#include <PathTracer.h>
 #include <Color.h>
+#include <HittableWorld.h>
+#include <Sphere.h>
 
 using namespace nv;
 using namespace nv::math;
@@ -12,33 +13,30 @@ using namespace nv::math;
 float HitSphere(const Vec3& center, float radius, const Ray& ray)
 {
 	Vec3 oc = ray.origin - center;
-	float a = Dot(ray.dir, ray.dir);
-	float b = 2.f * Dot(oc, ray.dir);
+	float a = ray.Direction().LengthSquared();
+	float halfB = Dot(oc, ray.dir);
 	float c = Dot(oc, oc) - radius * radius;
-	float discriminant = b * b - 4 * a * c;
+	float discriminant = halfB * halfB - a * c;
 	if (discriminant < 0)
 	{
 		return -1.f;
 	}
 	else
 	{
-		return (-b - sqrt(discriminant)) / (2.f * a);
+		return (-halfB - sqrt(discriminant)) / a;
 	}
 }
 
-Color RayColor(const Ray& ray)
+Color RayColor(const Ray& ray, const HittableWorld& world)
 {
-	Vec3 center(0, 0, -1);
-	float radius = 0.5f;
-	float t = HitSphere(center, radius, ray);
-	if (t > 0.f)
+	HitRecord hit;
+	if (world.Hit(ray, 0, infinity, hit))
 	{
-		Vec3 normal = UnitVector(ray.At(t) - center);
-		return 0.5f * Color(normal.x + 1, normal.y + 1, normal.z + 1);
+		return 0.5f * (hit.Normal + Color(1, 1, 1));
 	}
 
 	Vec3 unitDirection = UnitVector(ray.Direction());
-	t = 0.5f * (unitDirection.y + 1.f);
+	float t = 0.5f * (unitDirection.y + 1.f);
 	return Lerp(Color(1.f, 1.f, 1.f), Color(0.5f, 0.7f, 1.f), t);
 }
 
@@ -48,6 +46,11 @@ void RenderImage()
 	constexpr float aspectRatio = 16.f / 9.f;
 	constexpr int imageWidth = 400;
 	constexpr int imageHeight = (int)(imageWidth / aspectRatio);
+
+	// Define World
+	HittableWorld world;
+	world.Add(std::make_shared<Sphere>(Vec3(0, 0, -1), 0.5f));
+	world.Add(std::make_shared<Sphere>(Vec3(0, -100.5, -1), 100.f));
 
 	// Camera
 	float viewportHeight = 2.f;
@@ -73,7 +76,7 @@ void RenderImage()
 
 			Ray ray(origin, lowerLeftCorner + u * horizontal + v * vertical - origin);
 
-			Color pixelColor = RayColor(ray);
+			Color pixelColor = RayColor(ray, world);
 			WriteColor(std::cout, pixelColor);
 		}
 	}

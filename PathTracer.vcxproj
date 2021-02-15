@@ -152,11 +152,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Color.h" />
+    <ClInclude Include="include\PathTracer.h" />
+    <ClInclude Include="include\Hittable.h" />
+    <ClInclude Include="include\HittableWorld.h" />
     <ClInclude Include="include\Math\Ray.h" />
     <ClInclude Include="include\Math\Vec3.h">
       <FileType>Document</FileType>
     </ClInclude>
     <ClCompile Include="src\PathTracer.cpp" />
+    <ClInclude Include="include\Sphere.h" />
+    <ClInclude Include="include\Utility.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

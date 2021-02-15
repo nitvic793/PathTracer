@@ -18,13 +18,30 @@
     <ClCompile Include="src\PathTracer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="include\Math\Vec3.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Color.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Math\Ray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Math\Vec3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hittable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\HittableWorld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PathTracer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
