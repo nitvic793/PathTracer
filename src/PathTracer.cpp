@@ -48,14 +48,15 @@ void RenderImage()
 	// Define World
 	HittableWorld world;
 
-	auto materialGround = make_shared<Lambertian>(Color(0.8f, 0.8f, 0.8f));
+	auto materialGround = make_shared<Lambertian>(Color(0.8f, 0.8f, 0.1f));
 	auto materialCenter = make_shared<Lambertian>(Color(0.7f, 0.3f, 0.3f));
-	auto materialLeft = make_shared<Metal>(Color(0.8f, 0.8f, 0.8f), 0.3f);
+	auto materialLeft = make_shared<Dielectric>(1.5f);
 	auto materialRight = make_shared<Metal>(Color(0.8f, 0.6f, 0.2f), 1.f);
 
 	world.Add(std::make_shared<Sphere>(Vec3(0, -100.5, -1), 100.f, materialGround));
 	world.Add(std::make_shared<Sphere>(Vec3(0, 0, -1), 0.5f, materialCenter));
 	world.Add(std::make_shared<Sphere>(Vec3(-1, 0, -1), 0.5f, materialLeft));
+	world.Add(std::make_shared<Sphere>(Vec3(-1, 0, -1), -0.4f, materialLeft));
 	world.Add(std::make_shared<Sphere>(Vec3(1, 0, -1), 0.5f, materialRight));
 
 	// Camera

@@ -165,6 +165,14 @@ namespace nv::math
 	{
 		return v - 2.f * Dot(v, n) * n;
 	}
+
+	Vec3 Refract(const Vec3& uv, const Vec3& n, float etaiOverEtat)
+	{
+		float cosTheta = fmin(Dot(uv, -n), 1.f);
+		Vec3 rOutperp = etaiOverEtat * (uv + cosTheta * n);
+		Vec3 rOutParallel = -sqrt(fabs(1.f -rOutperp.LengthSquared())) * n;
+		return rOutperp + rOutParallel;
+	}
 }
 
 
