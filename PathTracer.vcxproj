@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Color.h" />
+    <ClInclude Include="include\Material.h" />
     <ClInclude Include="include\PathTracer.h" />
     <ClInclude Include="include\Hittable.h" />
     <ClInclude Include="include\HittableWorld.h" />

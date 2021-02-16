@@ -7,33 +7,28 @@
 #include <HittableWorld.h>
 #include <Sphere.h>
 #include <Camera.h>
+#include <Material.h>
 
 using namespace nv;
 using namespace nv::math;
 
-float HitSphere(const Vec3& center, float radius, const Ray& ray)
-{
-	Vec3 oc = ray.origin - center;
-	float a = ray.Direction().LengthSquared();
-	float halfB = Dot(oc, ray.dir);
-	float c = Dot(oc, oc) - radius * radius;
-	float discriminant = halfB * halfB - a * c;
-	if (discriminant < 0)
-	{
-		return -1.f;
-	}
-	else
-	{
-		return (-halfB - sqrt(discriminant)) / a;
-	}
-}
-
-Color RayColor(const Ray& ray, const HittableWorld& world)
+Color RayColor(const Ray& ray, const HittableWorld& world, int depth)
 {
 	HitRecord hit;
-	if (world.Hit(ray, 0, infinity, hit))
+	constexpr float epsilon = 0.001f;
+	if (depth <= 0)
+		return Color(0, 0, 0);
+
+	if (world.Hit(ray, epsilon, infinity, hit))
 	{
-		return 0.5f * (hit.Normal + Color(1, 1, 1));
+		Ray scattered;
+		Color attenutation;
+		if (hit.MaterialPtr->Scatter(ray, hit, attenutation, scattered))
+		{
+			return attenutation * RayColor(scattered, world, depth - 1);
+		}
+
+		return Color(0, 0, 0);
 	}
 
 	Vec3 unitDirection = UnitVector(ray.Direction());
@@ -48,11 +43,20 @@ void RenderImage()
 	constexpr int imageWidth = 400;
 	constexpr int imageHeight = (int)(imageWidth / aspectRatio);
 	constexpr int samplesPerPixel = 100;
+	constexpr int maxDepth = 50;
 
 	// Define World
 	HittableWorld world;
-	world.Add(std::make_shared<Sphere>(Vec3(0, 0, -1), 0.5f));
-	world.Add(std::make_shared<Sphere>(Vec3(0, -100.5, -1), 100.f));
+
+	auto materialGround = make_shared<Lambertian>(Color(0.8f, 0.8f, 0.8f));
+	auto materialCenter = make_shared<Lambertian>(Color(0.7f, 0.3f, 0.3f));
+	auto materialLeft = make_shared<Metal>(Color(0.8f, 0.8f, 0.8f), 0.3f);
+	auto materialRight = make_shared<Metal>(Color(0.8f, 0.6f, 0.2f), 1.f);
+
+	world.Add(std::make_shared<Sphere>(Vec3(0, -100.5, -1), 100.f, materialGround));
+	world.Add(std::make_shared<Sphere>(Vec3(0, 0, -1), 0.5f, materialCenter));
+	world.Add(std::make_shared<Sphere>(Vec3(-1, 0, -1), 0.5f, materialLeft));
+	world.Add(std::make_shared<Sphere>(Vec3(1, 0, -1), 0.5f, materialRight));
 
 	// Camera
 	Camera camera;
@@ -74,7 +78,7 @@ void RenderImage()
 
 				Ray ray = camera.GetRay(u, v);
 
-				pixelColor = pixelColor + RayColor(ray, world);
+				pixelColor = pixelColor + RayColor(ray, world, maxDepth);
 			}
 
 			WriteColor(std::cout, pixelColor, samplesPerPixel);

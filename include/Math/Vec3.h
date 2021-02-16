@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <PathTracer.h>
 
 namespace nv::math
 {
@@ -45,6 +46,22 @@ namespace nv::math
 
 		float LengthSquared() const {
 			return x * x + y * y + z * z;
+		}
+
+		inline static Vec3 Random()
+		{
+			return Vec3(nv::Random(), nv::Random(), nv::Random());
+		}
+
+		inline static Vec3 Random(float min, float max)
+		{
+			return Vec3(nv::Random(min, max), nv::Random(min, max), nv::Random(min, max));
+		}
+
+		bool NearZero() const
+		{
+			const auto s = 1e-8;
+			return (fabs(x) < s) && (fabs(y) < s) && (fabs(z) < s);
 		}
 
 		float x;
@@ -114,6 +131,39 @@ namespace nv::math
 	inline T Lerp(const T& x, const T& y, float t)
 	{
 		return (1.f - t) * x + t * y;
+	}
+
+	Vec3 RandomInUnitSphere()
+	{
+		while (true)
+		{
+			Vec3 out = Vec3::Random(-1.f, 1.f);
+			if (out.LengthSquared() >= 1.f) continue;
+			return out;
+		}
+	}
+
+	Vec3 RandomUnitVector()
+	{
+		return UnitVector(RandomInUnitSphere());
+	}
+
+	Vec3 RandomInHemisphere(const Vec3& normal)
+	{
+		Vec3 inUnitSphere = RandomInUnitSphere();
+		if (Dot(inUnitSphere, normal) > 0.f)
+		{
+			return inUnitSphere;
+		}
+		else
+		{
+			return -inUnitSphere;
+		}
+	}
+
+	Vec3 Reflect(const Vec3& v, const Vec3& n)
+	{
+		return v - 2.f * Dot(v, n) * n;
 	}
 }
 

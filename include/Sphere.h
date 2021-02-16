@@ -11,13 +11,14 @@ namespace nv
 		using Vec3 = math::Vec3;
 		Sphere()
 			: Center(Vec3(0, 0, 0)), Radius(1.f) {}
-		Sphere(Vec3 center, float radius)
-			: Center(center), Radius(radius) {}
+		Sphere(Vec3 center, float radius, shared_ptr<Material> matPtr)
+			: Center(center), Radius(radius), MaterialPtr(matPtr) {}
 
 		virtual bool Hit(const Ray& ray, float tMin, float tMax, HitRecord& hitRecord) const override;
 
 		Vec3 Center;
 		float Radius;
+		shared_ptr<Material> MaterialPtr;
 	};
 
 	bool Sphere::Hit(const Ray& ray, float tMin, float tMax, HitRecord& hitRecord) const
@@ -41,6 +42,7 @@ namespace nv
 
 		hitRecord.T = root;
 		hitRecord.Point = ray.At(hitRecord.T);
+		hitRecord.MaterialPtr = MaterialPtr;
 		Vec3 outwardNormal = (hitRecord.Point - Center) / Radius;
 
 		hitRecord.SetFaceNormal(ray, outwardNormal);

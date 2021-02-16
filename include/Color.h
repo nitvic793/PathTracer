@@ -11,9 +11,9 @@ namespace nv
 		float b = pixelColor.z;
 
 		float scale = 1.f / samplesPerPixel;
-		r *= scale;
-		g *= scale;
-		b *= scale;
+		r = sqrt(r * scale);
+		g = sqrt(g * scale);
+		b = sqrt(b * scale);
 
 		// Write the translated [0,255] value of each color component.
 		out << static_cast<int>(256 * Clamp(r, 0.f, 0.999f)) << ' '
