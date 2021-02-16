@@ -9,22 +9,38 @@ namespace nv
 	public:
 		using Vec3 = math::Vec3;
 		using Ray = math::Ray;
-		Camera()
+		Camera(
+			Vec3 lookFrom,
+			Vec3 lookAt,
+			Vec3 vUp,
+			float vfovInDegrees,
+			float aspectRatio,
+			float aperture,
+			float focusDistance)
 		{
-			float aspectRatio = 16.f / 9.f;
-			float viewportHeight = 2.f;
+			float theta = DegreesToRadians(vfovInDegrees);
+			float h = tan(theta / 2.f);
+			float viewportHeight = 2.f * h;
 			float viewportWidth = aspectRatio * viewportHeight;
-			float focalLength = 1.f;
 
-			Origin = Vec3(0, 0, 0);
-			Horizontal = Vec3(viewportWidth, 0, 0);
-			Vertical = Vec3(0, viewportHeight, 0);
-			LowerLeftCorner = Origin - Horizontal / 2.f - Vertical / 2.f - Vec3(0, 0, focalLength);
+			w = UnitVector(lookFrom - lookAt);
+			u = UnitVector(Cross(vUp, w));
+			v = Cross(w, u);
+
+			Origin = lookFrom;
+			Horizontal = focusDistance * viewportWidth * u;
+			Vertical = focusDistance * viewportHeight * v;
+			LowerLeftCorner = Origin - Horizontal / 2.f - Vertical / 2.f - focusDistance * w;
+
+			LensRadius = aperture / 2.f;
 		}
 
-		Ray GetRay(float u, float v) const
+		Ray GetRay(float s, float t) const
 		{
-			return Ray(Origin, LowerLeftCorner + u * Horizontal + v * Vertical);
+			Vec3 rd = LensRadius * math::RandomInUnitDisk();
+			Vec3 offset = u * rd.x + v * rd.y;
+
+			return Ray(Origin + offset, LowerLeftCorner + s * Horizontal + t * Vertical - Origin - offset);
 		}
 
 	protected:
@@ -32,5 +48,8 @@ namespace nv
 		Vec3 LowerLeftCorner;
 		Vec3 Horizontal;
 		Vec3 Vertical;
+
+		Vec3 u, v, w;
+		float LensRadius;
 	};
 }

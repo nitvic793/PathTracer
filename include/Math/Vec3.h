@@ -161,6 +161,16 @@ namespace nv::math
 		}
 	}
 
+	Vec3 RandomInUnitDisk()
+	{
+		while (true)
+		{
+			Vec3 out = Vec3(Random(-1.f, 1.f), Random(-1.f, 1.f), 0.f);
+			if (out.LengthSquared() >= 1) continue;
+			return out;
+		}
+	}
+
 	Vec3 Reflect(const Vec3& v, const Vec3& n)
 	{
 		return v - 2.f * Dot(v, n) * n;
